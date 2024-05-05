@@ -18,3 +18,4 @@ Control:
 | k   | Move cube closer to the screen |
 | l   | Move cube away from the screen |
 | c   | Toggle between CubeMesh and SphereMesh |
+| o   | Toggle between drawing filled triangle and line |

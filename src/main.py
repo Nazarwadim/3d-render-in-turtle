@@ -9,11 +9,22 @@ import time
 basis = Basis([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 transform = Transform(Vector3(100, 100, -200), basis)
 cube = Object(transform, SphereMesh(100, 0.25))
+fill_triangles = True
 
 turtle.hideturtle()
 
 screen = turtle.Screen()
 screen.tracer(0)
+
+def draw_filled_triangle(vec2_1 : Vector2i, vec2_2 : Vector2i, vec2_3 : Vector2i) -> None:
+    turtle.penup()
+    turtle.goto(vec2_1.x, vec2_1.y)
+    turtle.pendown()
+    turtle.begin_fill()
+    turtle.goto(vec2_2.x, vec2_2.y)
+    turtle.goto(vec2_3.x, vec2_3.y)
+    turtle.goto(vec2_1.x, vec2_1.y)
+    turtle.end_fill()
 
 def draw_line(x1, y1, x2, y2):
     turtle.penup()
@@ -50,6 +61,7 @@ rotation_speed = Vector3(1, 1, 1) # In radians.
 start_rotation = Vector3()
 
 def render(delta):
+    global fill_triangles
     global cube
     position = cube.transform.position
     vertices = cube.mesh.vertices
@@ -62,12 +74,17 @@ def render(delta):
         fy = 18.08 + d * (position.y - 150 + xvert.y) / (xvert.z + position.z + d)
         
         xform_vertices_2d.append(Vector2i(fx, fy))
-
-    for i in range(int(len(xform_vertices_2d) / 3)):
-        loc = i * 3 
-        draw_line(xform_vertices_2d[loc].x, xform_vertices_2d[loc].y, xform_vertices_2d[loc + 1].x, xform_vertices_2d[loc + 1].y)
-        draw_line(xform_vertices_2d[loc + 1].x, xform_vertices_2d[loc + 1].y, xform_vertices_2d[loc + 2].x, xform_vertices_2d[loc + 2].y)
-        draw_line(xform_vertices_2d[loc + 2].x, xform_vertices_2d[loc + 2].y, xform_vertices_2d[loc].x, xform_vertices_2d[loc].y)    
+    
+    if fill_triangles:
+        for i in range(int(len(xform_vertices_2d) / 3)):
+            loc = i * 3 
+            draw_filled_triangle(xform_vertices_2d[loc], xform_vertices_2d[loc + 1], xform_vertices_2d[loc + 2])
+    else:
+        for i in range(int(len(xform_vertices_2d) / 3)):
+            loc = i * 3 
+            draw_line(xform_vertices_2d[loc].x, xform_vertices_2d[loc].y, xform_vertices_2d[loc + 1].x, xform_vertices_2d[loc + 1].y)
+            draw_line(xform_vertices_2d[loc + 1].x, xform_vertices_2d[loc + 1].y, xform_vertices_2d[loc + 2].x, xform_vertices_2d[loc + 2].y)
+            draw_line(xform_vertices_2d[loc + 2].x, xform_vertices_2d[loc + 2].y, xform_vertices_2d[loc].x, xform_vertices_2d[loc].y)    
     
     
 def update(delta):
@@ -82,6 +99,7 @@ def update(delta):
     cube.transform.position = Vector3(x, y, cube.transform.position.z)
 
 def input(key):
+    global fill_triangles
     global cube
     global rotation_speed
     
@@ -99,7 +117,8 @@ def input(key):
         rotation_speed.z += 0.5
     elif key == "d":
         rotation_speed.z -= 0.5
-    
+    elif key == "o":
+        fill_triangles = not fill_triangles
     elif key == "k":
         cube.transform.position.z -= 10
     elif key == "l":
@@ -125,6 +144,7 @@ screen.onkeypress(lambda: input("s"), "s")
 
 screen.onkeypress(lambda: input("e"), "e")
 screen.onkeypress(lambda: input("d"), "d")
+screen.onkeypress(lambda: input("o"), "o")
 
 if __name__ == "__main__":
     main()
